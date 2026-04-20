@@ -1,0 +1,350 @@
+.page {
+  display: flex;
+  height: 100vh;
+  padding-top: var(--nav-h);
+  overflow: hidden;
+}
+
+/* ── Panel ─────────────────────────────────────────────────────────── */
+.panel {
+  width: 380px;
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 10;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rose) transparent;
+  padding-bottom: 24px;
+}
+
+.panelHeader {
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.panelTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.panelSub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ── Fields ─────────────────────────────────────────────────────────── */
+.fieldGroup {
+  padding: 16px 20px 0;
+  position: relative;
+}
+
+.fieldLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.inputRow {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.inputWrap {
+  flex: 1;
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.input::placeholder { color: var(--text-muted); }
+.input:focus { border-color: rgba(230,59,111,0.45); }
+
+.locBtn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.locBtn:hover { background: var(--rose-faint); border-color: var(--rose); }
+
+/* ── Suggestions ─────────────────────────────────────────────────────── */
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--r-md) var(--r-md);
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.suggestion {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  text-align: left;
+  transition: background 0.15s;
+}
+.suggestion:last-child { border-bottom: none; }
+.suggestion:hover { background: var(--card-hover); }
+
+.suggIcon { font-size: 0.9rem; flex-shrink: 0; margin-top: 2px; }
+.suggName { font-size: 0.82rem; font-weight: 600; }
+.suggSub  { font-size: 0.68rem; color: var(--text-muted); margin-top: 1px; }
+
+/* ── Find button ─────────────────────────────────────────────────────── */
+.findBtn {
+  margin: 18px 20px 0;
+  padding: 12px 20px;
+  background: var(--rose);
+  border: none;
+  border-radius: var(--r-md);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.findBtn:hover:not(:disabled) { background: #c92d5e; transform: translateY(-1px); }
+.findBtn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+/* ── Error ───────────────────────────────────────────────────────────── */
+.error {
+  margin: 10px 20px 0;
+  padding: 10px 14px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: var(--r-md);
+  color: #EF4444;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* ── Route list ──────────────────────────────────────────────────────── */
+.routeList {
+  padding: 16px 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.routeListTitle {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.routeCard {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  color: var(--text);
+  transition: all 0.2s;
+}
+.routeCard:hover { background: var(--card-hover); border-color: rgba(230,59,111,0.3); }
+.routeCardActive { border-color: var(--rose) !important; background: var(--rose-faint) !important; }
+
+.routeTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.routeLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.routeSafety {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.routeMeta {
+  display: flex;
+  gap: 14px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.routeTip {
+  margin-top: 8px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Safety tips ─────────────────────────────────────────────────────── */
+.safetyTips {
+  background: rgba(230,59,111,0.06);
+  border: 1px solid rgba(230,59,111,0.2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  margin-top: 4px;
+}
+
+.tipsTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.tipsList {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tipsList li {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ── No token ────────────────────────────────────────────────────────── */
+.noToken {
+  margin: 16px 20px 0;
+  padding: 12px 14px;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: var(--r-md);
+  font-size: 0.78rem;
+  color: #F59E0B;
+  line-height: 1.6;
+}
+
+.noToken code {
+  font-family: var(--font-mono);
+  background: rgba(245,158,11,0.15);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.72rem;
+}
+
+/* ── Map ─────────────────────────────────────────────────────────────── */
+.mapWrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+}
+
+.mapOverlay {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.mapOverlayText {
+  background: rgba(17,17,24,0.88);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 8px 18px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+}
+
+.routeLegend {
+  position: absolute;
+  bottom: 32px;
+  left: 16px;
+  background: rgba(17,17,24,0.9);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  backdrop-filter: blur(12px);
+  z-index: 5;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 800px) {
+  .page { flex-direction: column; }
+  .panel {
+    width: 100%;
+    max-height: 55vh;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .mapWrap { flex: 1; min-height: 0; }
+}
