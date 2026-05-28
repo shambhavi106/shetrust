@@ -103,8 +103,12 @@ mongoose
   .connect(MONGO_URI)
   .then(() => {
     console.log("✅ MongoDB connected");
-
-
+    server.listen(PORT, () => {
+      console.log(`\n🛡  SheTrust API running on http://localhost:${PORT}`);
+      console.log(`📍 City: Bengaluru`);
+      console.log(`🔗 Health: http://localhost:${PORT}/api/health`);
+      console.log(`🔌 Socket.io: enabled\n`);
+    });
   })
   .catch((err) => {
     console.error("❌ MongoDB connection failed:", err.message);
