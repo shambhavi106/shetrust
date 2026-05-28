@@ -5,8 +5,6 @@
  * Run: node utils/seed.js
  */
 
-require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
-require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') }); // fallback
 const mongoose = require('mongoose');
 const Location = require('../models/Location');
 const Rating = require('../models/Rating');
@@ -161,9 +159,19 @@ async function seed() {
   console.log(`   Locations: ${LOCATIONS.length}`);
 }
 
-// Only disconnect if running directly (not required from server.js)
+// When run directly: connect → seed → disconnect
 if (require.main === module) {
-  seed().catch(e => { console.error(e); process.exit(1); });
+  mongoose.connect(MONGO_URI)
+    .then(() => {
+      console.log('✅ Connected to MongoDB');
+      return seed();
+    })
+    .then(() => mongoose.disconnect())
+    .then(() => {
+      console.log('🔌 Disconnected. Done!');
+      process.exit(0);
+    })
+    .catch(e => { console.error(e); process.exit(1); });
 }
 
 module.exports = { seed };
