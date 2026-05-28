@@ -67,10 +67,10 @@ const LOCATIONS = [
 // ── Demo ratings distribution (realistic) ─────────────────────────
 const SLOT_PROFILES = {
   // [lighting, crowd, police, incident]   — [min, max] per factor
-  morning:   { L:[6,9],  C:[5,8],  P:[4,7],  I:[1,3] },
-  afternoon: { L:[8,10], C:[6,9],  P:[5,8],  I:[1,2] },
-  evening:   { L:[4,8],  C:[5,9],  P:[3,6],  I:[2,5] },
-  night:     { L:[2,6],  C:[2,6],  P:[2,5],  I:[3,8] },
+  morning: { L: [6, 9], C: [5, 8], P: [4, 7], I: [1, 3] },
+  afternoon: { L: [8, 10], C: [6, 9], P: [5, 8], I: [1, 2] },
+  evening: { L: [4, 8], C: [5, 9], P: [3, 6], I: [2, 5] },
+  night: { L: [2, 6], C: [2, 6], P: [2, 5], I: [3, 8] },
 };
 
 // Some locations are inherently safer (parks, malls) vs riskier (isolated roads)
@@ -92,8 +92,6 @@ function rand(min, max) {
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
 async function seed() {
-  await mongoose.connect(MONGO_URI);
-  console.log('✅ Connected to MongoDB');
 
   // Clear existing
   await Location.deleteMany({ city: 'Bengaluru' });
@@ -161,7 +159,11 @@ async function seed() {
 
   console.log('\n🎉 Seed complete!');
   console.log(`   Locations: ${LOCATIONS.length}`);
-  await mongoose.disconnect();
 }
 
-seed().catch(e => { console.error(e); process.exit(1); });
+// Only disconnect if running directly (not required from server.js)
+if (require.main === module) {
+  seed().catch(e => { console.error(e); process.exit(1); });
+}
+
+module.exports = { seed };
