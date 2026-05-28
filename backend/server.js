@@ -101,20 +101,10 @@ const MONGO_URI =
 
 mongoose
   .connect(MONGO_URI)
-  .then(async () => {
+  .then(() => {
     console.log("✅ MongoDB connected");
 
-    // Auto-seed if database is empty
-    const { seed } = require("./utils/seed.js");
-    const Location = require("./models/Location");
-    const count = await Location.countDocuments();
-    if (count === 0) {
-      console.log("🌱 Database empty, seeding...");
-      await seed();
-      console.log("✅ Seed complete!");
-    } else {
-      console.log(`📍 ${count} locations already in database`);
-    }
+
   })
   .catch((err) => {
     console.error("❌ MongoDB connection failed:", err.message);
