@@ -105,21 +105,16 @@ mongoose
     console.log("✅ MongoDB connected");
 
     // Auto-seed if database is empty
+    const { seed } = require("./utils/seed.js");
     const Location = require("./models/Location");
     const count = await Location.countDocuments();
     if (count === 0) {
       console.log("🌱 Database empty, seeding...");
-      require("./utils/seed.js");
+      await seed();
+      console.log("✅ Seed complete!");
     } else {
       console.log(`📍 ${count} locations already in database`);
     }
-
-    server.listen(PORT, () => {
-      console.log(`\n🛡  SheTrust API running on http://localhost:${PORT}`);
-      console.log(`📍 City: Bengaluru`);
-      console.log(`🔗 Health: http://localhost:${PORT}/api/health`);
-      console.log(`🔌 Socket.io: enabled\n`);
-    });
   })
   .catch((err) => {
     console.error("❌ MongoDB connection failed:", err.message);
