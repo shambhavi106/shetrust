@@ -21,10 +21,9 @@ const io = initSocket(server);
 // ── Security middleware ─────────────────────────────────────────────
 app.use(helmet());
 
-const allowedOrigins =
-  process.env.NODE_ENV === "production"
-    ? [process.env.FRONTEND_URL].filter(Boolean)
-    : ["http://localhost:3000", "http://127.0.0.1:3000"];
+const allowedOrigins = process.env.FRONTEND_URL
+  ? [process.env.FRONTEND_URL]
+  : ["http://localhost:3000", "http://127.0.0.1:3000"];
 
 app.use(
   cors({
@@ -102,8 +101,18 @@ const MONGO_URI =
 
 mongoose
   .connect(MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log("✅ MongoDB connected");
+
+    // Auto-seed if database is empty
+    const Location = require("./models/Location");
+    const count = await Location.countDocuments();
+    if (count === 0) {
+      console.log("🌱 Database empty, seeding...");
+      require("./utils/seed.js");
+    } else {
+      console.log(`📍 ${count} locations already in database`);
+    }
 
     server.listen(PORT, () => {
       console.log(`\n🛡  SheTrust API running on http://localhost:${PORT}`);
