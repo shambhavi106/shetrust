@@ -7,7 +7,6 @@ const RatingSchema = new mongoose.Schema({
     required: true,
     index: true
   },
-  // Anonymous user token fingerprint (hashed, never the raw token)
   userToken: { type: String, required: true, index: true },
 
   timeSlot: {
@@ -17,35 +16,44 @@ const RatingSchema = new mongoose.Schema({
   },
 
   // Core rating factors (1–10 scale)
-  lighting: { type: Number, required: true, min: 1, max: 10 },
-  crowdBehavior: { type: Number, required: true, min: 1, max: 10 },
-  policeVisibility: { type: Number, required: true, min: 1, max: 10 },
-  incidentWeight: { type: Number, required: true, min: 0, max: 10 },
+  lighting:          { type: Number, required: true, min: 1, max: 10 },
+  crowdBehavior:     { type: Number, required: true, min: 1, max: 10 },
+  policeVisibility:  { type: Number, required: true, min: 1, max: 10 },
+  incidentWeight:    { type: Number, required: true, min: 0, max: 10 },
+
+  // ── NEW: Network availability (0 = no signal, 10 = excellent) ──────
+  // Replaces crimeReportRef. Poor connectivity = higher danger (can't call for help).
+  networkAvailability: {
+    type: Number,
+    min: 0,
+    max: 10,
+    default: null,   // null = user did not provide; not penalised
+  },
 
   // Computed STI for this submission (before TRS weighting)
   rawSTI: { type: Number },
 
-  // Free-text comment (optional, for Phase 2 NLP)
+  // Free-text comment (analysed by Gemini NLP)
   comment: { type: String, maxlength: 500, default: '' },
 
-  // Quick tags the user can tick
-  tags: [{
-    type: String,
-    enum: [
-      'well_lit', 'poorly_lit', 'crowded', 'deserted',
-      'police_present', 'no_security', 'harassment_witnessed',
-      'felt_safe', 'felt_unsafe', 'good_infrastructure'
-    ]
-  }],
+  // NLP analysis result (populated async after submission)
+  nlpAnalysis: {
+    incidentType:  { type: String, default: null }, // e.g. 'harassment', 'theft', 'unsafe_lighting'
+    severity:      { type: String, enum: ['low','medium','high', null], default: null },
+    sentiment:     { type: String, enum: ['positive','neutral','negative', null], default: null },
+    tags:          [String],
+    processedAt:   { type: Date, default: null },
+  },
 
-  // Trust Reliability Score at submission time (0–1)
+  tags: [{ type: String, enum: [
+    'well_lit', 'poorly_lit', 'crowded', 'deserted',
+    'police_present', 'no_security', 'harassment_witnessed',
+    'felt_safe', 'felt_unsafe', 'good_infrastructure',
+    'good_network', 'poor_network', 'no_network',          // NEW network tags
+  ]}],
+
   trsAtSubmission: { type: Number, default: 0.5 },
-
-  // Whether this rating was included in STI computation
-  isIncluded: { type: Boolean, default: true },
-
-  // For future crime-report integration
-  crimeReportRef: { type: String, default: null },
+  isIncluded:      { type: Boolean, default: true },
 
   // Geolocation at time of submission (optional)
   submittedAt: {
@@ -58,20 +66,18 @@ const RatingSchema = new mongoose.Schema({
   timestamps: { createdAt: true, updatedAt: false }
 });
 
-// Prevent same user rating same location+slot more than once per day
 RatingSchema.index(
   { locationId: 1, userToken: 1, timeSlot: 1, createdAt: 1 },
   { partialFilterExpression: { isIncluded: true } }
 );
 
-// Compute raw STI from factors
+// Compute rawSTI from factors using default weights (dynamic weights applied at aggregation time)
 RatingSchema.pre('save', function(next) {
-  // STI formula: 0.30L + 0.30C + 0.20P + 0.20(10-I)
   this.rawSTI = Math.round(
-    (0.30 * this.lighting +
-     0.30 * this.crowdBehavior +
-     0.20 * this.policeVisibility +
-     0.20 * (10 - this.incidentWeight)) * 10
+    (0.30 * this.lighting
+   + 0.30 * this.crowdBehavior
+   + 0.20 * this.policeVisibility
+   + 0.20 * (10 - this.incidentWeight)) * 10
   ) / 10;
   next();
 });

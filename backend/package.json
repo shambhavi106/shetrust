@@ -1,6 +1,6 @@
 {
   "name": "shetrust-backend",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "SheTrust API Server – Express + MongoDB",
   "main": "server.js",
   "scripts": {
@@ -20,7 +20,17 @@
     "socket.io": "^4.8.3",
     "uuid": "^10.0.0"
   },
+  "optionalDependencies": {
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.14",
+    "web-push": "^3.6.7"
+  },
   "devDependencies": {
     "nodemon": "^3.1.4"
+  },
+  "_install_notes": {
+    "multer": "npm i multer  — enables photo upload on incident reports",
+    "nodemailer": "npm i nodemailer  — enables email notifications (requires SMTP config in .env)",
+    "web-push": "npm i web-push  — enables Web Push browser notifications (requires VAPID keys in .env)"
   }
 }

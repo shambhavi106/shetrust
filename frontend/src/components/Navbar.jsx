@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import styles from './Navbar.module.css';
 
-export default function Navbar({ onRateClick, onSurveyClick }) {
+export default function Navbar({ onRateClick, onSurveyClick, onReportClick, notificationBell }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -66,6 +66,14 @@ export default function Navbar({ onRateClick, onSurveyClick }) {
         >
           📋 Survey
         </button>
+        <button
+          className={`btn btn-outline btn-sm ${styles.ctaBtn}`}
+          style={{ borderColor: 'rgba(239,68,68,0.35)', color: '#F87171' }}
+          onClick={() => { onReportClick?.(); setMenuOpen(false); }}
+        >
+          🚨 Report
+        </button>
+        {notificationBell && <div style={{ marginLeft: 4 }}>{notificationBell}</div>}
 
         {isAuthenticated ? (
           <div className={styles.userMenu}>

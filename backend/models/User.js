@@ -3,72 +3,64 @@ const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
   name: {
-    type: String,
-    required: [true, 'Name is required'],
-    trim: true,
-    minlength: [2, 'Name must be at least 2 characters'],
-    maxlength: [50, 'Name cannot exceed 50 characters'],
+    type: String, required: [true,'Name is required'],
+    trim: true, minlength: [2,'Min 2 chars'], maxlength: [50,'Max 50 chars'],
   },
   email: {
-    type: String,
-    required: [true, 'Email is required'],
-    unique: true,
-    lowercase: true,
-    trim: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email'],
+    type: String, required: [true,'Email is required'],
+    unique: true, lowercase: true, trim: true,
+    match: [/^\S+@\S+\.\S+$/, 'Invalid email'],
   },
-  password: {
-    type: String,
-    required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters'],
-    select: false, // never return password in queries
+  password: { type: String, required: true, minlength: [6,'Min 6 chars'], select: false },
+  avatar:         { type: String, default: null },
+  anonTokenHash:  { type: String, default: null },
+  isVerified:     { type: Boolean, default: false },
+  role:           { type: String, enum: ['user','moderator','admin'], default: 'user' },
+  lastLogin:      { type: Date, default: null },
+
+  // ── Push notification subscription (Web Push VAPID) ────────────────
+  pushSubscription: {
+    endpoint: { type: String, default: null },
+    keys: {
+      p256dh: { type: String, default: null },
+      auth:   { type: String, default: null },
+    },
   },
-  avatar: {
-    type: String,
-    default: null,
+
+  // ── Notification preferences ────────────────────────────────────────
+  notifPrefs: {
+    pushEnabled:   { type: Boolean, default: false },
+    emailEnabled:  { type: Boolean, default: false },
+    // Alert when a rated location drops below 'moderate'
+    stiDropAlerts: { type: Boolean, default: true },
+    // Weekly area digest
+    weeklyDigest:  { type: Boolean, default: true },
+    // Real-time zone alerts (socket)
+    zoneAlerts:    { type: Boolean, default: true },
+    // Minimum STI threshold for personal alerts
+    alertThreshold:{ type: Number, default: 5, min: 0, max: 10 },
   },
-  // Link to anonymous ratings made before signup
-  anonTokenHash: {
-    type: String,
-    default: null,
-  },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
-  role: {
-    type: String,
-    enum: ['user', 'moderator', 'admin'],
-    default: 'user',
-  },
-  lastLogin: {
-    type: Date,
-    default: null,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+
+  // ── Rated location tracking (for personalised alerts) ──────────────
+  // Denormalised list of location IDs the user has rated, for fast alert queries
+  ratedLocationIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Location' }],
+
+  createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
-// Hash password before saving
-UserSchema.pre('save', async function (next) {
+UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
-  const salt = await bcrypt.genSalt(12);
-  this.password = await bcrypt.hash(this.password, salt);
+  this.password = await bcrypt.hash(this.password, await bcrypt.genSalt(12));
   next();
 });
-
-// Compare password method
-UserSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
+UserSchema.methods.comparePassword = function(candidate) {
+  return bcrypt.compare(candidate, this.password);
 };
-
-// Return safe user object (no password)
-UserSchema.methods.toSafeObject = function () {
+UserSchema.methods.toSafeObject = function() {
   const obj = this.toObject();
   delete obj.password;
   delete obj.anonTokenHash;
+  delete obj.pushSubscription; // never expose keys to client
   return obj;
 };
 

@@ -1,31 +1,30 @@
-import { useEffect, useRef } from 'react';
-import { getSocket } from '../utils/socket';
+import { useEffect, useRef, useState } from 'react';
+import { io } from 'socket.io-client';
 
-/**
- * React hook that subscribes to a Socket.io event.
- * Automatically cleans up the listener on unmount.
- *
- * @param {string} event - Socket event name to listen for
- * @param {Function} handler - Callback invoked with event data
- */
-export function useSocket(event, handler) {
-  const savedHandler = useRef(handler);
+const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
+
+let sharedSocket = null;
+
+export function useSocket() {
+  const [socket, setSocket] = useState(sharedSocket);
 
   useEffect(() => {
-    savedHandler.current = handler;
-  }, [handler]);
+    if (sharedSocket) { setSocket(sharedSocket); return; }
 
-  useEffect(() => {
-    const socket = getSocket();
+    const s = io(SOCKET_URL, {
+      transports: ['websocket', 'polling'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 2000,
+    });
 
-    const listener = (data) => {
-      savedHandler.current(data);
-    };
+    s.on('connect', () => console.log('🔌 Socket connected'));
+    s.on('disconnect', () => console.log('🔌 Socket disconnected'));
 
-    socket.on(event, listener);
+    sharedSocket = s;
+    setSocket(s);
 
-    return () => {
-      socket.off(event, listener);
-    };
-  }, [event]);
+    return () => {};  // keep socket alive for app lifetime
+  }, []);
+
+  return socket;
 }
