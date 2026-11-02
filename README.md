@@ -60,4 +60,4 @@ Follow these steps to run SheTrust locally.
 
 ---
 
-**SheTrust — Making safer journeys a community-driven effort.** 💜
+**SheTrust — Making safer journeys a community-driven effort.**
